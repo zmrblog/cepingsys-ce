@@ -6,7 +6,6 @@ namespace App\Controllers;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Illuminate\Database\Capsule\Manager as DB;
-use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class UserController
 {
@@ -239,122 +238,7 @@ class UserController
         return success_response($response, null, '用户删除成功');
     }
 
-    public function forceDestroy(Request $request, Response $response, array $args): Response
-    {
-        $adminRole = $request->getAttribute('admin_role') ?? '';
-        if ($adminRole !== 'super') {
-            return error_response($response, 403, '仅超级管理员可强制删除用户');
-        }
-
-        $id = (int)$args['id'];
-        $adminId = (int)$request->getAttribute('admin_id');
-
-        $user = DB::table('users')->where('id', $id)->first();
-        if (!$user) {
-            return error_response($response, 404, '用户不存在');
-        }
-
-        $answerCount = DB::table('examine_answers')->where('user_id', $id)->count();
-        $examineUserCount = DB::table('examine_users')->where('user_id', $id)->count();
-
-        DB::transaction(function () use ($id) {
-            DB::table('examine_answers')->where('user_id', $id)->delete();
-            DB::table('examine_users')->where('user_id', $id)->delete();
-            DB::table('users')->where('id', $id)->delete();
-        });
-
-        log_operation(
-            $adminId,
-            'users',
-            'force_delete',
-            'user',
-            $id,
-            json_encode([
-                'deleted_user' => $user->name,
-                'answers_count' => $answerCount,
-                'examine_users_count' => $examineUserCount,
-            ], JSON_UNESCAPED_UNICODE),
-            $request
-        );
-
-        return success_response($response, [
-            'deleted_user' => $user->name,
-            'answers_deleted' => $answerCount,
-            'examine_users_deleted' => $examineUserCount,
-        ], '用户已强制删除');
-    }
-
-    public function batchForceDelete(Request $request, Response $response): Response
-    {
-        $adminRole = $request->getAttribute('admin_role') ?? '';
-        if ($adminRole !== 'super') {
-            return error_response($response, 403, '仅超级管理员可强制删除用户');
-        }
-
-        $data = $request->getParsedBody();
-        if (empty($data) || !is_array($data)) {
-            $rawBody = (string)$request->getBody();
-            if (!empty($rawBody)) {
-                $data = json_decode($rawBody, true) ?? [];
-            }
-        }
-
-        $ids = $data['ids'] ?? [];
-        if (empty($ids) || !is_array($ids)) {
-            return error_response($response, 400, '请提供要删除的用户ID列表');
-        }
-
-        $adminId = (int)$request->getAttribute('admin_id');
-        $ids = array_map('intval', $ids);
-        $successCount = 0;
-        $failCount = 0;
-        $deletedUsers = [];
-
-        foreach ($ids as $id) {
-            try {
-                $user = DB::table('users')->where('id', $id)->first();
-                if (!$user) {
-                    $failCount++;
-                    continue;
-                }
-
-                DB::transaction(function () use ($id) {
-                    DB::table('examine_answers')->where('user_id', $id)->delete();
-                    DB::table('examine_users')->where('user_id', $id)->delete();
-                    DB::table('users')->where('id', $id)->delete();
-                });
-
-                $deletedUsers[] = $user->name;
-                $successCount++;
-            } catch (\Throwable $e) {
-                $failCount++;
-            }
-        }
-
-        log_operation(
-            $adminId,
-            'users',
-            'batch_force_delete',
-            'user',
-            null,
-            json_encode([
-                'total' => count($ids),
-                'success' => $successCount,
-                'fail' => $failCount,
-                'deleted_users' => $deletedUsers,
-            ], JSON_UNESCAPED_UNICODE),
-            $request
-        );
-
-        return success_response($response, [
-            'total' => count($ids),
-            'success_count' => $successCount,
-            'fail_count' => $failCount,
-            'deleted_users' => $deletedUsers,
-        ], "成功删除 {$successCount} 位用户" . ($failCount > 0 ? "，{$failCount} 位失败" : ''));
-    }
-
-    public function register(Request $request, Response $response): Response
+    public function adminResetPassword(Request $request, Response $response, array $args): Response
     {
         // [保留方法] 管理后台创建注册用户（无设备指纹绑定）
         // 与 AuthController::register() 的区别：本方法由管理员操作，不绑定设备指纹，

@@ -382,13 +382,13 @@ const todayStr = computed(() => {
 
 const quickActions = [
   { label: '新建任务', icon: 'Plus', color: '#1B5E9B', gradient: 'linear-gradient(135deg,#1B5E9B,#3B82F6)', path: '/examines/create' },
-  { label: '导入人员', icon: 'Upload', color: '#2E8B57', gradient: 'linear-gradient(135deg,#2E8B57,#4ADE80)', path: '/import-data' },
+  { label: '导入人员', icon: 'Upload', color: '#2E8B57', gradient: 'linear-gradient(135deg,#2E8B57,#4ADE80)', path: '/units' },
   { label: '查看报告', icon: 'DataAnalysis', color: '#7232dd', gradient: 'linear-gradient(135deg,#7232dd,#A78BFA)', path: '/analysis' },
   { label: '模板管理', icon: 'Tickets', color: '#D4A017', gradient: 'linear-gradient(135deg,#D4A017,#FBBF24)', path: '/templates' },
 ]
 
 const quickSteps = [
-  { label: '准备数据', desc: '导入单位和人员', icon: 'Upload', color: '#0891B2', gradient: 'linear-gradient(135deg,#0891B2,#0EA5E9)', path: '/import-data' },
+  { label: '准备数据', desc: '导入单位和人员', icon: 'Upload', color: '#0891B2', gradient: 'linear-gradient(135deg,#0891B2,#0EA5E9)', path: '/units' },
   { label: '创建模板', desc: '设计测评问卷', icon: 'Tickets', color: '#2563EB', gradient: 'linear-gradient(135deg,#2563EB,#6366F1)', path: '/templates' },
   { label: '创建任务', desc: '发布测评场次', icon: 'List', color: '#7C3AED', gradient: 'linear-gradient(135deg,#7C3AED,#A855F7)', path: '/examines/create' },
   { label: '分配人员', desc: '确定参评人和对象', icon: 'User', color: '#DB2777', gradient: 'linear-gradient(135deg,#DB2777,#EC4899)', path: null },

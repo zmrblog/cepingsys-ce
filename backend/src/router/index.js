@@ -105,12 +105,6 @@ const routes = [
         meta: { title: '导入单位及用户' },
       },
       {
-        path: 'logs',
-        name: 'Logs',
-        component: () => import('@/views/logs/Index.vue'),
-        meta: { title: '操作日志' },
-      },
-      {
         path: 'registered-users',
         name: 'RegisteredUsers',
         component: () => import('@/views/registered-users/Index.vue'),

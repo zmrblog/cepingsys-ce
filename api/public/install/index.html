@@ -379,11 +379,6 @@ function esc(s){const d=document.createElement('div');d.textContent=s;return d.i
 
 (function init(){
     renderSteps();
-    const loc=location.pathname;
-    if(loc.includes('/enterprise/')||loc.includes('-enterprise')){
-        document.getElementById('editionBadge').textContent='企业版';
-        document.getElementById('editionBadge').className='edition-badge edition-enterprise';
-    }
 })();
 </script>
 </body>

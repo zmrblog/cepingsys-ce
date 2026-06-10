@@ -6,7 +6,6 @@ namespace App\Controllers;
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Illuminate\Database\Capsule\Manager as DB;
-use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ExamineController
 {
@@ -234,46 +233,6 @@ class ExamineController
         return success_response($response, null, '测评任务删除成功');
     }
 
-    public function batchDestroy(Request $request, Response $response): Response
-    {
-        $data = $request->getParsedBody();
-        $ids = $data['ids'] ?? [];
-
-        if (empty($ids) || !is_array($ids)) {
-            return error_response($response, 400, '请选择要删除的测评任务');
-        }
-
-        $successCount = 0;
-        $skipCount = 0;
-
-        DB::transaction(function () use ($ids, $request, &$successCount, &$skipCount) {
-            foreach ($ids as $id) {
-            $examine = DB::table('examines')->where('id', (int)$id)->first();
-            if (!$examine) {
-                $skipCount++;
-                continue;
-            }
-            if ($examine->status === 'active') {
-                $skipCount++;
-                continue;
-            }
-
-            DB::table('examine_answers')->where('examine_id', (int)$id)->delete();
-            DB::table('examine_users')->where('examine_id', (int)$id)->delete();
-            DB::table('examine_targets')->where('examine_id', (int)$id)->delete();
-            DB::table('examines')->where('id', (int)$id)->delete();
-
-            log_operation((int)$request->getAttribute('admin_id'), 'examines', 'batch_delete', 'examine', (int)$id, null, $request);
-            $successCount++;
-        }
-        });
-
-        return success_response($response, [
-            'deleted' => $successCount,
-            'skipped' => $skipCount,
-        ], "成功删除 {$successCount} 个任务" . ($skipCount > 0 ? "，跳过 {$skipCount} 个" : ''));
-    }
-
     public function addTargets(Request $request, Response $response, array $args): Response
     {
         $id = (int)$args['id'];
@@ -325,151 +284,6 @@ class ExamineController
         ], $request);
 
         return success_response($response, ['count' => count($targets)], '测评对象添加成功');
-    }
-
-    public function importTargets(Request $request, Response $response, array $args): Response
-    {
-        // [设计说明] 本方法仅负责解析Excel文件并返回数据给前端预览
-        // 前端确认后调用 addTargets() 接口实际写入数据库
-        // 这样设计允许用户在提交前检查和编辑导入的数据，避免错误数据直接入库
-        $id = (int)$args['id'];
-
-        $examine = DB::table('examines')->where('id', $id)->first();
-        if (!$examine) {
-            return error_response($response, 404, '测评任务不存在');
-        }
-
-        $uploadedFiles = $request->getUploadedFiles();
-        if (!isset($uploadedFiles['file']) || $uploadedFiles['file']->getError() !== UPLOAD_ERR_OK) {
-            return error_response($response, 400, '请上传Excel文件');
-        }
-
-        $file = $uploadedFiles['file'];
-        $ext = strtolower(pathinfo($file->getClientFilename(), PATHINFO_EXTENSION));
-        if (!in_array($ext, ['xlsx', 'xls'])) {
-            return error_response($response, 400, '仅支持 xlsx/xls 格式');
-        }
-
-        $allowedMimes = [
-            'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'xls' => 'application/vnd.ms-excel',
-        ];
-        if ($allowedMimes[$ext] !== null) {
-            $finfo = new \finfo(FILEINFO_MIME_TYPE);
-            $detectedMime = $finfo->file($file->getStream()->getMetadata('uri'));
-            if ($detectedMime && !str_starts_with($detectedMime, explode('/', $allowedMimes[$ext])[0] . '/')) {
-                return error_response($response, 400, '文件类型与扩展名不匹配');
-            }
-        }
-
-        $tempPath = tempnam(sys_get_temp_dir(), 'target_import_');
-        $file->moveTo($tempPath);
-
-        try {
-            $spreadsheet = IOFactory::load($tempPath);
-            $sheet = $spreadsheet->getActiveSheet();
-            $rows = $sheet->toArray(null, true, true, false);
-            @unlink($tempPath);
-
-            if (count($rows) < 2) {
-                return error_response($response, 400, 'Excel 内容为空或只有表头');
-            }
-
-            $data = $request->getParsedBody();
-            $defaultType = in_array(trim($data['target_type'] ?? ''), ['leader', 'team'])
-                ? trim($data['target_type']) : 'leader';
-
-            $imported = [];
-            foreach ($rows as $rowNum => $row) {
-                if ($rowNum === 0) continue;
-                $name = trim((string)($row[0] ?? ''));
-                if ($name === '') continue;
-
-                $imported[] = [
-                    'target_name' => $name,
-                    'target_type' => $defaultType,
-                    'position' => trim((string)($row[1] ?? '')),
-                    'unit_name' => trim((string)($row[2] ?? '')),
-                ];
-            }
-
-            if (empty($imported)) {
-                return error_response($response, 400, '未解析到有效的测评对象数据');
-            }
-
-            log_operation('导入测评对象', "任务ID:{$id}, 导入" . count($imported) . "条");
-
-            return success_response($response, [
-                'count' => count($imported),
-                'targets' => $imported,
-            ], '成功解析 ' . count($imported) . ' 条测评对象');
-
-        } catch (\Exception $e) {
-            if (file_exists($tempPath)) @unlink($tempPath);
-            log_operation('导入测评对象失败', "错误: {$e->getMessage()}");
-            return error_response($response, 500, '文件解析失败: ' . $e->getMessage());
-        }
-    }
-
-    public function downloadTargetTemplate(Request $request, Response $response): Response
-    {
-        try {
-            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
-            $sheet = $spreadsheet->getActiveSheet();
-            $sheet->setTitle('测评对象模板');
-
-            $headers = ['姓名', '职务', '单位'];
-            foreach ($headers as $col => $header) {
-                $sheet->setCellValue([$col + 1, 1], $header);
-                $cell = $sheet->getCell([$col + 1, 1]);
-                $cell
-                    ->getStyle()
-                    ->getFont()
-                    ->setBold(true);
-                $cell
-                    ->getStyle()
-                    ->getFill()
-                    ->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)
-                    ->getStartColor()
-                    ->setRGB('E8F4FD');
-            }
-
-            $examples = [
-                ['张三', '局长', '公安局'],
-                ['李四', '副局长', '税务局'],
-                ['王五', '科长', '教育局'],
-            ];
-            foreach ($examples as $rowIdx => $example) {
-                foreach ($example as $colIdx => $value) {
-                    $sheet->setCellValue([$colIdx + 1, $rowIdx + 2], $value);
-                    $sheet->getCell([$colIdx + 1, $rowIdx + 2])
-                        ->getStyle()
-                        ->getFont()
-                        ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('FF999999'));
-                }
-            }
-
-            $sheet->getColumnDimension('A')->setWidth(15);
-            $sheet->getColumnDimension('B')->setWidth(12);
-            $sheet->getColumnDimension('C')->setWidth(18);
-
-            $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-            $tempPath = tempnam(sys_get_temp_dir(), 'target_tpl_') . '.xlsx';
-            $writer->save($tempPath);
-
-            $content = file_get_contents($tempPath);
-            @unlink($tempPath);
-
-            $response->getBody()->write($content);
-            return $response
-                ->withHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-                ->withHeader('Content-Disposition', 'attachment; filename="UTF-8\'\'测评对象导入模板.xlsx"')
-                ->withHeader('Cache-Control', 'no-cache, must-revalidate')
-                ->withHeader('Pragma', 'no-cache');
-
-        } catch (\Exception $e) {
-            return error_response($response, 500, '模板生成失败: ' . $e->getMessage());
-        }
     }
 
     public function assignUsers(Request $request, Response $response, array $args): Response
