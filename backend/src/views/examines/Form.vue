@@ -1018,6 +1018,7 @@ const onTargetSelectionChange = (rows) => {
 }
 
 const handleBatchRemoveTargets = async () => {
+  if (editionStore.isCommunity) { upgradeDialog.value?.open(); return }
   if (selectedTargetIds.value.length === 0) return
 
   try {
@@ -1056,6 +1057,7 @@ const handleBatchRemoveTargets = async () => {
 // ====== 批量粘贴相关方法 ======
 
 function openBatchTargetDialog() {
+  if (editionStore.isCommunity) { upgradeDialog.value?.open(); return }
   batchTargetText.value = ''
   batchTargetType.value = 'leader'
   showBatchTargetDialog.value = true
