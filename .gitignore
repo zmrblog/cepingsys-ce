@@ -1,0 +1,38 @@
+# ============================================================
+# .gitignore - 企业版
+# ============================================================
+
+# 依赖目录
+api/vendor/
+api/composer.phar
+backend/node_modules/
+mobile/node_modules/
+
+# 构建产物（不纳入版本控制）
+backend/dist/
+mobile/dist/
+
+# 敏感配置（含密码和JWT密钥）
+api/.env
+
+# 授权文件（部署时放置）
+api/storage/license_public.key
+api/storage/.license.json
+
+# GeoIP 库文件（数 MB，新机器重新下载）
+api/data/*.mmdb
+
+# 系统/编辑器
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+*.bak
+*.swp
+*~
+*.tmp
+*.temp
+
+# 临时工作区
+temp/

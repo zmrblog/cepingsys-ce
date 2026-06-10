@@ -1,0 +1,83 @@
+@use './variables' as *;
+
+:root {
+  // Element Plus Primary
+  --el-color-primary: #1B5E9B;
+  --el-color-primary-light-3: #3D7BB8;
+  --el-color-primary-light-5: #5C8DB8;
+  --el-color-primary-light-7: #8AB0D1;
+  --el-color-primary-light-8: #A5C3DF;
+  --el-color-primary-light-9: #D0E3F2;
+  --el-color-primary-dark-2: #0D3F6A;
+
+  // Status Colors
+  --el-color-success: #2E8B57;
+  --el-color-success-light-3: #4DA87A;
+  --el-color-success-light-5: #6FC494;
+  --el-color-success-light-7: #95DEBA;
+  --el-color-success-light-8: #B7EAD1;
+  --el-color-success-light-9: #D9F2E6;
+
+  --el-color-warning: #D4A017;
+  --el-color-warning-light-3: #DFB83C;
+  --el-color-warning-light-5: #E8CF65;
+  --el-color-warning-light-7: #F0DD91;
+  --el-color-warning-light-8: #F6E8B5;
+  --el-color-warning-light-9: #FBF3D8;
+
+  --el-color-danger: #C23B22;
+  --el-color-danger-light-3: #D15E4A;
+  --el-color-danger-light-5: #DC8072;
+  --el-color-danger-light-7: #E5A398;
+  --el-color-danger-light-8: #EBBCB4;
+  --el-color-danger-light-9: #F3DDD8;
+
+  --el-color-info: #5C8DB8;
+  --el-color-info-light-3: #7AA5CA;
+  --el-color-info-light-5: #99BED8;
+  --el-color-info-light-7: #BAD5E6;
+  --el-color-info-light-8: #CEE3EF;
+  --el-color-info-light-9: #E5F0F7;
+
+  // Backgrounds
+  --el-bg-color: #F5F7FA;
+  --el-bg-color-page: #F5F7FA;
+  --el-bg-color-overlay: #FFFFFF;
+
+  // Borders
+  --el-border-color: #D0D7E0;
+  --el-border-color-light: #DCE2EA;
+  --el-border-color-lighter: #E5E9EE;
+  --el-border-color-extra-light: #EDEEF1;
+  --el-border-color-dark: #CBD5E1;
+
+  // Text
+  --el-text-color-primary: #1A1A1A;
+  --el-text-color-regular: #3A4A5A;
+  --el-text-color-secondary: #5A6A7A;
+  --el-text-color-placeholder: #8A96A6;
+  --el-text-color-disabled: #9AA3B0;
+
+  // Border Radius
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 6px;
+  --el-border-radius-round: 20px;
+  --el-border-radius-circle: 50%;
+
+  // Shadows
+  --el-box-shadow: var(--shadow-sm);
+  --el-box-shadow-light: var(--shadow-sm);
+  --el-box-shadow-lighter: var(--shadow-md);
+  --el-box-shadow-dark: var(--shadow-lg);
+
+  // Fill
+  --el-fill-color-blank: #FFFFFF;
+  --el-fill-color: #F5F7FA;
+  --el-fill-color-light: #F4F6F9;
+  --el-fill-color-lighter: #F0F3F6;
+  --el-fill-color-extra-light: #F7F8FA;
+
+  // Mask
+  --el-mask-color: rgba(27, 94, 155, 0.45);
+  --el-mask-color-extra-light: rgba(27, 94, 155, 0.25);
+}

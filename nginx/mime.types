@@ -1,0 +1,18 @@
+types {
+    text/html                             html htm shtml;
+    text/css                              css;
+    text/xml                              xml rss;
+    image/gif                             gif;
+    image/jpeg                            jpeg jpg;
+    application/javascript                js;
+    application/json                      json;
+    application/octet-stream              bin exe dll;
+    application/vnd.ms-fontobject         eot;
+    application/x-font-ttf                ttf ttc;
+    font/opentype                         otf;
+    font/woff                             woff;
+    font/woff2                            woff2;
+    application/pdf                       pdf;
+    application/vnd.openxmlformats-officedocument.spreadsheetml.sheet xlsx;
+    application/vnd.openxmlformats-officedocument.wordprocessingml.document docx;
+}

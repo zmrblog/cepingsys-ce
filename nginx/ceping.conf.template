@@ -1,0 +1,107 @@
+# ============================================================
+#   Examine System - Nginx Configuration Template
+#   Version: v2026.05.28-1 (Enterprise)
+# ============================================================
+#
+# Usage:
+#   1. Copy this file to your nginx conf.d/ directory
+#   2. Replace placeholders: {PROJECT_ROOT}, {PHP_CGI_PASS}
+#   3. Adjust ports as needed
+#   4. Run: nginx -t && nginx -s reload
+#
+# Or use the installer-generated config:
+#   include {PROJECT_ROOT}/nginx/generated.conf;
+
+# ---- Common settings for all server blocks ----
+client_max_body_size 50M;
+
+# ---- Admin Backend (:2001) ----
+server {
+    listen 2001;
+    server_name localhost;
+
+    root {PROJECT_ROOT}/backend/dist;
+    index index.html;
+
+    add_header X-Frame-Options SAMEORIGIN always;
+    add_header X-Content-Type-Options nosniff always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    server_tokens off;
+
+    location ~ ^/api/.+\.php$ {
+        root {PROJECT_ROOT}/api/public;
+        try_files $uri =404;
+
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass {PHP_CGI_PASS};
+        fastcgi_index index.php;
+
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_param PATH_INFO $fastcgi_path_info;
+        include fastcgi_params;
+        fastcgi_read_timeout 3600s;
+    }
+
+    location ~ ^/install/ {
+        alias {PROJECT_ROOT}/api/public/install/;
+        try_files $uri /install/index.html;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    location ~ /\.(env|git|htaccess|license) {
+        deny all;
+        return 404;
+    }
+}
+
+# ---- Mobile H5 Frontend (:2002) ----
+server {
+    listen 2002;
+    server_name localhost;
+
+    root {PROJECT_ROOT}/mobile/dist;
+    index index.html;
+    server_tokens off;
+    add_header X-Robots-Tag "noindex, nofollow, noarchive, nosnippet, noai, noimageai" always;
+
+    location /api/ {
+        proxy_pass http://127.0.0.1:2001/api/;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_read_timeout 120s;
+    }
+
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+}
+
+# ---- Upstream PHP-CGI pool ----
+upstream php_cgi {
+    server 127.0.0.1:9010;
+    server 127.0.0.1:9011;
+    server 127.0.0.1:9012;
+    server 127.0.0.1:9013;
+    server 127.0.0.1:9014;
+    server 127.0.0.1:9015;
+    server 127.0.0.1:9016;
+    server 127.0.0.1:9017;
+    server 127.0.0.1:9018;
+    server 127.0.0.1:9019;
+    server 127.0.0.1:9020;
+    server 127.0.0.1:9021;
+    server 127.0.0.1:9022;
+    server 127.0.0.1:9023;
+    server 127.0.0.1:9024;
+    server 127.0.0.1:9025;
+    server 127.0.0.1:9026;
+    server 127.0.0.1:9027;
+    server 127.0.0.1:9028;
+    server 127.0.0.1:9029;
+    server 127.0.0.1:9030;
+    keepalive 32;
+}

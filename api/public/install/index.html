@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noai, noimageai">
+<title>测评系统安装向导</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;background:#f0f4f8;color:#2d3748;line-height:1.6}
+.container{max-width:720px;margin:40px auto;padding:0 20px}
+.card{background:#fff;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,.08);padding:36px 40px}
+.header{text-align:center;margin-bottom:32px}
+.header h1{font-size:24px;font-weight:600;color:#1B5E9B;margin-bottom:6px}
+.header p{color:#718096;font-size:14px}
+.steps{display:flex;justify-content:center;gap:8px;margin-bottom:32px}
+.step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;transition:.3s}
+.step-dot.active{background:#1B5E9B;color:#fff}
+.step-dot.done{background:#48bb78;color:#fff}
+.step-dot.pending{background:#e2e8f0;color:#a0aec0}
+.step-line{width:40px;height:2px;background:#e2e8f0;align-self:center;margin-top:-14px;transition:.3s}
+.step-line.done{background:#48bb78}
+.form-group{margin-bottom:20px}
+.form-group label{display:block;font-size:14px;font-weight:500;color:#4a5568;margin-bottom:6px}
+.form-group label .required{color:#e53e3e;margin-left:2px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;border:1px solid #cbd5e0;border-radius:8px;font-size:14px;color:#2d3748;background:#f7fafc;transition:border-color .2s}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:#1B5E9B;background:#fff;box-shadow:0 0 0 3px rgba(27,94,155,.1)}
+.form-group .hint{font-size:12px;color:#a0aec0;margin-top:4px}
+.form-row{display:flex;gap:16px}
+.form-row .form-group{flex:1}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:500;cursor:pointer;border:none;transition:.2s;gap:6px}
+.btn-primary{background:#1B5E9B;color:#fff}
+.btn-primary:hover{background:#154c7d}
+.btn-primary:disabled{background:#a0aec0;cursor:not-allowed}
+.btn-secondary{background:#edf2f7;color:#4a5568;border:1px solid #cbd5e0}
+.btn-secondary:hover{background:#e2e8f0}
+.btn-success{background:#48bb78;color:#fff}
+.btn-success:hover{background:#38a169}
+.btn-sm{padding:7px 16px;font-size:13px}
+.btn-block{width:100%}
+.actions{display:flex;justify-content:space-between;margin-top:28px;padding-top:20px;border-top:1px solid #e2e8f0}
+.env-table{width:100%;border-collapse:collapse;margin-top:12px}
+.env-table th,.env-table td{padding:10px 14px;text-align:left;font-size:13px;border-bottom:1px solid #edf2f7}
+.env-table th{color:#718096;font-weight:500;width:30%}
+.env-table .pass{color:#38a169;font-weight:600}
+.env-table .fail{color:#e53e3e;font-weight:600}
+.env-table .msg{color:#e53e3e;font-size:12px}
+.welcome-icon{font-size:56px;margin-bottom:12px}
+.feature-list{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0}
+.feature-list li{display:flex;align-items:center;gap:8px;font-size:14px;color:#4a5568}
+.feature-list li::before{content:'\2713';color:#48bb78;font-weight:bold}
+.progress-steps{margin-top:16px}
+.progress-step{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #edf2f7}
+.progress-step:last-child{border-bottom:none}
+.ps-icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.ps-icon.ok{background:#c6f6d5;color:#22543d}
+.ps-icon.fail{background:#fed7d7;color:#742a2a}
+.ps-icon.running{background:#fefcbf;color:#744210;animation:pulse 1s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.ps-text{font-size:14px}
+.ps-text .action{font-weight:500;color:#2d3748}
+.ps-text .error{color:#e53e3e;font-size:12px;margin-top:2px}
+.success-box{text-align:center;padding:32px 0}
+.success-box .big-icon{font-size:64px;margin-bottom:16px}
+.success-box h2{font-size:22px;color:#22543d;margin-bottom:8px}
+.success-box p{color:#4a5568;font-size:14px;margin-bottom:6px}
+.nginx-hint{background:#ebf8ff;border:1px solid #90cdf4;border-radius:8px;padding:16px;margin-top:20px;text-align:left}
+.nginx-hint h4{color:#2b6cb0;font-size:14px;margin-bottom:8px}
+.nginx-hint pre{background:#fff;padding:12px;border-radius:6px;font-size:12px;color:#2d3748;overflow-x:auto;white-space:pre-wrap;word-break:break-all}
+.php-mode-info{background:#faf5ff;border:1px solid #d6bcfa;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#553c9a}
+.php-mode-info strong{color:#6b46c1}
+.test-result{margin-top:6px;padding:8px 12px;border-radius:6px;font-size:13px;display:none}
+.test-result.ok{background:#c6f6d5;color:#22543d;display:block}
+.test-result.err{background:#fed7d7;color:#742a2a;display:block}
+.hidden{display:none!important}
+.step-view{display:none}
+.step-view.active{display:block}
+.edition-badge{display:inline-block;padding:2px 10px;border-radius:12px;font-size:12px;font-weight:600}
+.edition-community{background:#e6fffa;color:#234e52}
+.edition-enterprise{background:#faf5ff;color:#44337a}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="card">
+<div class="header">
+<h1>年度考核民主测评系统 <span id="editionBadge" class="edition-badge edition-community">社区版</span></h1>
+<p id="versionText">v2026.05.28-1</p>
+</div>
+
+<div class="steps" id="stepDots"></div>
+
+<!-- Step 0: Welcome -->
+<div class="step-view active" id="view-0">
+<div style="text-align:center;padding:20px 0">
+<div class="welcome-icon">&#x1F4CB;</div>
+<h2 style="font-size:20px;color:#1B5E9B;margin-bottom:8px">欢迎使用测评系统安装向导</h2>
+<p style="color:#718096;margin-bottom:24px">本向导将引导您完成系统初始化配置，预计需要 2-3 分钟</p>
+<ul class="feature-list">
+<li>环境自动检测</li>
+<li>数据库一键建表</li>
+<li>Nginx配置自动生成</li>
+<li>管理员账号创建</li>
+<li>.env 配置文件写入</li>
+<li>安全参数自动生成</li>
+</ul>
+</div>
+<div class="actions" style="justify-content:center;border:none">
+<button class="btn btn-primary" onclick="goStep(1)">开始安装 &rarr;</button>
+</div>
+</div>
+
+<!-- Step 1: Environment Check -->
+<div class="step-view" id="view-1">
+<h3 style="font-size:17px;margin-bottom:4px">环境检测</h3><p class="hint" style="margin-bottom:16px">正在检测服务器运行环境是否满足要求...</p>
+<div id="envResult"></div>
+<div id="envLoading" style="text-align:center;padding:24px"><span style="font-size:18px">&#8987;</span>&nbsp; 正在检测...</div>
+<div class="actions">
+<button class="btn btn-secondary" onclick="goStep(0)" id="btnPrev1">&larr; 上一步</button>
+<button class="btn btn-primary" onclick="goStep(2)" id="btnNext1" disabled>下一步 &rarr;</button>
+</div>
+</div>
+
+<!-- Step 2: Database Config -->
+<div class="step-view" id="view-2">
+<h3 style="font-size:17px;margin-bottom:4px">数据库与系统配置</h3><p class="hint" style="margin-bottom:16px">请填写数据库连接信息，系统将自动创建数据库和表结构</p>
+
+<div class="php-mode-info" id="phpModeInfo"></div>
+
+<div class="form-row">
+<div class="form-group">
+<label>数据库主机 <span class="required">*</span></label>
+<input type="text" id="db_host" value="127.0.0.1" placeholder="127.0.0.1">
+</div>
+<div class="form-group">
+<label>端口 <span class="required">*</span></label>
+<input type="text" id="db_port" value="3306" placeholder="3306">
+</div>
+</div>
+<div class="form-group">
+<label>用户名 <span class="required">*</span></label>
+<input type="text" id="db_username" value="root" placeholder="root">
+</div>
+<div class="form-group">
+<label>密码 <span class="required">*</span></label>
+<input type="password" id="db_password" placeholder="MySQL 密码">
+</div>
+<div class="form-group">
+<label>数据库名称 <span class="required">*</span></label>
+<input type="text" id="db_database" value="examine_system" placeholder="examine_system">
+<div class="hint">如果不存在将自动创建</div>
+</div>
+<div class="form-group">
+<label>应用地址 (APP_URL)</label>
+<input type="text" id="app_url" value="http://localhost" placeholder="http://your-domain.com">
+</div>
+<hr style="border:none;border-top:1px solid #e2e8f0;margin:20px 0">
+<h4 style="font-size:15px;margin-bottom:12px;color:#4a5568">Nginx / Web 服务器配置</h4>
+<div class="form-row">
+<div class="form-group">
+<label>域名</label>
+<input type="text" id="domain" value="localhost" placeholder="localhost">
+</div>
+<div class="form-group">
+<label>后台端口</label>
+<input type="text" id="admin_port" value="2001" placeholder="2001">
+</div>
+</div>
+<div class="form-row">
+<div class="form-group">
+<label>移动端端口</label>
+<input type="text" id="mobile_port" value="2002" placeholder="2002">
+</div>
+<div class="form-group">
+<label>fastcgi_pass</label>
+<input type="text" id="php_pass" value="" placeholder="127.0.0.1:9000">
+<div class="hint" id="phpPassHint">PHP-CGI 或 PHP-FPM 地址</div>
+</div>
+</div>
+<div style="margin-bottom:16px">
+<button class="btn btn-secondary btn-sm" onclick="testDb()">&#x1F50D; 测试数据库连接</button>
+<div id="dbTestResult" class="test-result"></div>
+</div>
+<div class="actions">
+<button class="btn btn-secondary" onclick="goStep(1)">&larr; 上一步</button>
+<button class="btn btn-primary" onclick="goStep(3)">下一步 &rarr;</button>
+</div>
+</div>
+
+<!-- Step 3: Admin Account -->
+<div class="step-view" id="view-3">
+<h3 style="font-size:17px;margin-bottom:4px">管理员账号设置</h3><p class="hint" style="margin-bottom:16px">创建系统超级管理员账号</p>
+<div class="form-group">
+<label>管理员用户名 <span class="required">*</span></label>
+<input type="text" id="admin_name" value="admin" placeholder="admin">
+</div>
+<div class="form-group">
+<label>管理员密码 <span class="required">*</span></label>
+<input type="password" id="admin_password" placeholder="至少 6 位字符">
+<div class="hint">密码将被 bcrypt 加密存储（cost=12）</div>
+</div>
+<div class="form-group">
+<label>确认密码 <span class="required">*</span></label>
+<input type="password" id="admin_password_confirm" placeholder="再次输入密码">
+</div>
+<div class="actions">
+<button class="btn btn-secondary" onclick="goStep(2)">&larr; 上一步</button>
+<button class="btn btn-success btn-block" onclick="runInstall()" id="btnInstall" style="margin-left:16px;flex:1">&#x2713; 开始安装</button>
+</div>
+</div>
+
+<!-- Step 4: Result -->
+<div class="step-view" id="view-4">
+<div class="success-box" id="installSuccess" style="display:none">
+<div class="big-icon">&#x2705;</div>
+<h2>安装完成！</h2>
+<p>系统已成功初始化，可以开始使用了</p>
+</div>
+<div id="installFailed" style="display:none;text-align:center;padding:24px 0">
+<div style="font-size:48px;margin-bottom:12px">&#x274C;</div>
+<h2 style="color:#c53030;font-size:20px">安装失败</h2>
+<p id="failReason" style="color:#e53e3e;margin-top:8px"></p>
+</div>
+<div class="progress-steps" id="progressSteps"></div>
+<div class="nginx-hint" id="nginxHint" style="display:none">
+<h4>&#x1F4DD; 下一步：配置 Nginx</h4>
+<p style="font-size:13px;color:#4a5568;margin-bottom:8px">系统已自动生成 Nginx 配置文件，请在 nginx.conf 中添加以下引用：</p>
+<pre id="nginxInclude"></pre>
+<p style="font-size:12px;color:#718096;margin-top:8px">然后执行 <code style="background:#edf2f7;padding:2px 6px;border-radius:4px">nginx -t && nginx -s reload</code> 重载配置</p>
+</div>
+<div class="actions" style="justify-content:center;border:none;margin-top:20px">
+<a class="btn btn-primary" href="/" id="gotoHome" style="display:none">&#x1F3E0; 进入系统</a>
+<button class="btn btn-secondary" onclick="location.reload()" id="btnRetry" style="display:none">&#x1F504; 重新安装</button>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+const API_BASE = '/api';
+let currentStep = 0;
+const totalSteps = 4;
+const stepNames = ['欢迎','环境检测','数据库配置','管理员设置','安装结果'];
+
+function renderSteps(){
+    const c=document.getElementById('stepDots');
+    c.innerHTML='';
+    for(let i=0;i<=totalSteps;i++){
+        const dot=document.createElement('div');
+        dot.className='step-dot '+(i<currentStep?'done':i===currentStep?'active':'pending');
+        dot.textContent=i;
+        if(i<totalSteps){
+            const line=document.createElement('div');
+            line.className='step-line '+(i<currentStep?'done':'');
+            c.appendChild(dot);c.appendChild(line);
+        }else c.appendChild(dot);
+    }
+}
+
+function goStep(n){
+    document.querySelectorAll('.step-view').forEach(v=>v.classList.remove('active'));
+    document.getElementById('view-'+n).classList.add('active');
+    currentStep=n;
+    renderSteps();
+    if(n===1) checkEnv();
+    if(n===2) loadPhpInfo();
+}
+
+async function api(path,method,data){
+    const opts={method,headers:{'Content-Type':'application/json'}};
+    if(data&&method!=='get') opts.body=JSON.stringify(data);
+    try{
+        const r=await fetch(API_BASE+path,opts);
+        return await r.json();
+    }catch(e){return{code:0,message:'网络请求失败: '+e.message};}
+}
+
+async function checkEnv(){
+    const el=document.getElementById('envResult');
+    const ld=document.getElementById('envLoading');
+    ld.style.display='block';el.innerHTML='';
+    const res=await api('/install/check-env','get');
+    ld.style.display='none';
+    if(!res.all_pass||!res.items)return el.innerHTML='<p style="color:#e53e3e;text-align:center;padding:20px">无法获取环境信息</p>';
+    let html='<table class="env-table"><tr><th>检测项</th><th>当前值</th><th>要求</th><th>状态</th></tr>';
+    res.items.forEach(item=>{
+        html+=`<tr><td>${esc(item.name)}</td><td>${esc(String(item.current))}</td><td>${esc(item.required)}</td>`;
+        html+=item.pass?'<td class="pass">&#x2713; 通过</td>':`<td class="fail">&#x2717; 未通过</td>`;
+        if(item.msg)html+=`<tr><td colspan="4" class="msg">${esc(item.msg)}</td></tr>`;
+    });
+    html+='</table>';
+    el.innerHTML=html;
+    document.getElementById('btnNext1').disabled=!res.all_pass;
+}
+
+async function loadPhpInfo(){
+    const res=await api('/install/php-info','get');
+    if(res.detected_mode){
+        const m=res.detected_mode;
+        document.getElementById('phpModeInfo').innerHTML=`<strong>检测到 PHP 模式:</strong> ${esc(m.label)}<br><span style="font-size:12px">${esc(m.hint)}</span>`;
+        if(!document.getElementById('php_pass').value)document.getElementById('php_pass').value=m.default_pass;
+        document.getElementById('phpPassHint').textContent=m.hint;
+    }
+}
+
+async function testDb(){
+    const data={
+        db_host:document.getElementById('db_host').value,
+        db_port:document.getElementById('db_port').value,
+        db_username:document.getElementById('db_username').value,
+        db_password:document.getElementById('db_password').value,
+        db_database:document.getElementById('db_database').value
+    };
+    const el=document.getElementById('dbTestResult');
+    el.style.display='none';el.className='test-result';
+    const res=await api('/install/test-db','post',data);
+    if(res.success){el.textContent='\u2705 '+res.message;el.classList.add('ok');}
+    else{el.textContent='\u274C '+res.message;el.classList.add('err');}
+}
+
+async function runInstall(){
+    const pwd=document.getElementById('admin_password').value;
+    const pwd2=document.getElementById('admin_password_confirm').value;
+    if(pwd.length<6){alert('密码至少需要6位');return;}
+    if(pwd!==pwd2){alert('两次输入的密码不一致');return;}
+    const data={
+        db_host:document.getElementById('db_host').value,
+        db_port:document.getElementById('db_port').value,
+        db_username:document.getElementById('db_username').value,
+        db_password:document.getElementById('db_password').value,
+        db_database:document.getElementById('db_database').value,
+        app_url:document.getElementById('app_url').value,
+        domain:document.getElementById('domain').value,
+        admin_port:document.getElementById('admin_port').value,
+        mobile_port:document.getElementById('mobile_port').value,
+        php_pass:document.getElementById('php_pass').value,
+        admin_name:document.getElementById('admin_name').value,
+        admin_password:pwd
+    };
+    document.getElementById('btnInstall').disabled=true;
+    document.getElementById('btnInstall').textContent='正在安装...';
+    goStep(4);
+    showProgress(data);
+}
+
+async function showProgress(data){
+    const container=document.getElementById('progressSteps');
+    const res=await api('/install/run','post',data);
+    let html='';
+    if(res.steps){
+        res.steps.forEach(s=>{
+            const iconCls=s.status==='ok'?'ok':s.status==='fail'?'fail':'running';
+            const icon=s.status==='ok'?'\u2713':s.status==='fail'?'\u2717':'\u23F3';
+            html+=`<div class="progress-step"><div class="ps-icon ${iconCls}">${icon}</div><div class="ps-text"><div class="action">${esc(s.action)}</div>`;
+            if(s.error)html+=`<div class="error">${esc(s.error)}</div>`;
+            html+='</div></div>';
+        });
+    }
+    container.innerHTML=html;
+    if(res.success){
+        document.getElementById('installSuccess').style.display='block';
+        document.getElementById('installFailed').style.display='none';
+        document.getElementById('gotoHome').style.display='inline-flex';
+        document.getElementById('nginxHint').style.display='block';
+        const rootPath=window.location.pathname.replace(/\/install\/.*$/,'')||'';
+        document.getElementById('nginxInclude').textContent=`include ${rootPath}/nginx/generated.conf;`;
+    }else{
+        document.getElementById('installSuccess').style.display='none';
+        document.getElementById('installFailed').style.display='block';
+        document.getElementById('btnRetry').style.display='inline-flex';
+        let reason='';
+        if(res.steps){const fail=res.steps.find(s=>s.status==='fail');if(reason=fail?.error);}
+        if(!reason)reason='未知错误，请查看服务器日志';
+        document.getElementById('failReason').textContent=reason;
+    }
+}
+
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+
+(function init(){
+    renderSteps();
+    const loc=location.pathname;
+    if(loc.includes('/enterprise/')||loc.includes('-enterprise')){
+        document.getElementById('editionBadge').textContent='企业版';
+        document.getElementById('editionBadge').className='edition-badge edition-enterprise';
+    }
+})();
+</script>
+</body>
+</html>
