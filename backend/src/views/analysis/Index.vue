@@ -121,6 +121,7 @@
         <el-empty description="请从左侧选择一个测评任务" />
       </div>
     </div>
+    <UpgradeDialog ref="upgradeDialog" />
   </div>
 </template>
 
@@ -129,8 +130,12 @@ import { ref, computed, onMounted, watch, nextTick } from 'vue'
 import { ElMessage } from 'element-plus'
 import { Search, Download, Select } from '@element-plus/icons-vue'
 import request from '@/api/request'
+import { useEditionStore } from '@/stores/edition'
+import UpgradeDialog from '@/components/UpgradeDialog.vue'
 
 const searchText = ref('')
+const editionStore = useEditionStore()
+const upgradeDialog = ref(null)
 const tasks = ref([])
 const currentTask = ref(null)
 const selectedTaskIds = ref([])
@@ -250,6 +255,7 @@ function getScoreValue(row, idx) {
 
 async function handleExport() {
     if (!currentTask.value) return
+    if (editionStore.isCommunity) { upgradeDialog.value?.open(); return }
 
     try {
       let url = ''
@@ -278,6 +284,7 @@ async function handleExport() {
 
   async function handleBatchExport() {
     if (!hasSelectedTasks.value) return
+    if (editionStore.isCommunity) { upgradeDialog.value?.open(); return }
 
     try {
       const res = await request.post('/statistics/batch-export', {

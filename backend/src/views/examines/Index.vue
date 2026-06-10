@@ -68,17 +68,22 @@
         @current-change="fetchData"
       />
     </el-card>
+    <UpgradeDialog ref="upgradeDialog" />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { useEditionStore } from '@/stores/edition'
+import UpgradeDialog from '@/components/UpgradeDialog.vue'
 import request from '@/api/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 
 const userStore = useUserStore()
+const editionStore = useEditionStore()
+const upgradeDialog = ref(null)
 const loading = ref(false)
 const tableData = ref([])
 const selectedRows = ref([])
@@ -162,7 +167,10 @@ function handleSelectionChange(rows) {
   selectedRows.value = rows
 }
 
-function batchDeleteClick() { handleBatchDelete() }
+function batchDeleteClick() {
+  if (editionStore.isCommunity) { upgradeDialog.value?.open(); return }
+  handleBatchDelete()
+}
 
 async function handleBatchDelete() {
   const ids = selectedRows.value.map((r) => r.id)

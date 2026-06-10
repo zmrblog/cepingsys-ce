@@ -147,16 +147,21 @@
         <el-button type="primary" :loading="submitLoading" @click="handleSubmit">确定</el-button>
       </template>
     </el-dialog>
+    <UpgradeDialog ref="upgradeDialog" />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
+import { useEditionStore } from '@/stores/edition'
+import UpgradeDialog from '@/components/UpgradeDialog.vue'
 import request from '@/api/request'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const userStore = useUserStore()
+const editionStore = useEditionStore()
+const upgradeDialog = ref(null)
 const loading = ref(false)
 const submitLoading = ref(false)
 const tableData = ref([])
@@ -294,6 +299,7 @@ async function handleResetPassword(row) {
 }
 
 async function handleDelete(row) {
+  if (editionStore.isCommunity) { upgradeDialog.value?.open(); return }
   try {
     await ElMessageBox.confirm(
       `确定要删除管理员"${row.real_name}"吗？此操作不可恢复！`,

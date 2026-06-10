@@ -123,7 +123,9 @@
           确认批量新增{{ parsedNames.length - skippedCount > 0 ? `（${parsedNames.length - skippedCount} 个）` : '' }}
         </el-button>
       </template>
-    </el-dialog></div>
+    </el-dialog>
+    <UpgradeDialog ref="upgradeDialog" />
+  </div>
 </template>
 
 <script setup>
@@ -132,10 +134,12 @@ import { useUserStore } from '@/stores/user'
 import { Plus, DocumentCopy } from '@element-plus/icons-vue'
 import request from '@/api/request'
 import { useEditionStore } from '@/stores/edition'
+import UpgradeDialog from '@/components/UpgradeDialog.vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 const userStore = useUserStore()
 const editionStore = useEditionStore()
+const upgradeDialog = ref(null)
 
 const loading = ref(false)
 const submitLoading = ref(false)
@@ -260,9 +264,15 @@ function handleSelectionChange(rows) {
 }
 
 // ===== 批量删除 =====
-function batchDeleteClick() { handleBatchDelete() }
+function batchDeleteClick() {
+  if (editionStore.isCommunity) { upgradeDialog.value?.open(); return }
+  handleBatchDelete()
+}
 
-function batchAddClick() { handleBatchAdd() }
+function batchAddClick() {
+  if (editionStore.isCommunity) { upgradeDialog.value?.open(); return }
+  handleBatchAdd()
+}
 
 async function handleBatchDelete() {
   if (!selectedIds.value.length) return

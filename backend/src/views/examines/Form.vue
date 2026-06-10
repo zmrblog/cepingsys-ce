@@ -474,6 +474,7 @@
         </div>
       </template>
     </el-dialog>
+    <UpgradeDialog ref="upgradeDialog" />
   </div>
 </template>
 
@@ -483,9 +484,13 @@ import { useRoute, useRouter } from 'vue-router'
 import { ElMessage, ElLoading, ElMessageBox } from 'element-plus'
 import dayjs from 'dayjs'
 import request from '@/api/request'
+import { useEditionStore } from '@/stores/edition'
+import UpgradeDialog from '@/components/UpgradeDialog.vue'
 
 const route = useRoute()
 const router = useRouter()
+const editionStore = useEditionStore()
+const upgradeDialog = ref(null)
 const formRef = ref()
 const submitting = ref(false)
 const templateLoading = ref(false)
@@ -1122,6 +1127,7 @@ const ensureDraftExamine = async () => {
 }
 
 const downloadTargetTemplate = async () => {
+  if (editionStore.isCommunity) { upgradeDialog.value?.open(); return }
   try {
     const res = await request.get('/examines/targets/template', {
       responseType: 'blob',
@@ -1141,6 +1147,7 @@ const downloadTargetTemplate = async () => {
 }
 
 const handleTargetExcelUpload = async (uploadFile) => {
+  if (editionStore.isCommunity) { upgradeDialog.value?.open(); return }
   const eid = await ensureDraftExamine()
   if (!eid) return
 
