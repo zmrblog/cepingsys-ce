@@ -80,7 +80,7 @@
             <el-button type="primary" size="small" @click="showAddTargetDialog = true">+ 添加</el-button>
             <el-button type="success" size="small" @click="openBatchTargetDialog">📋 批量粘贴</el-button>
             <el-upload :auto-upload="false" :show-file-list="false" accept=".xlsx,.xls" :on-change="handleTargetExcelUpload">
-              <el-button type="warning" size="small" :loading="targetUploading">📤 导入Excel</el-button>
+              <el-button type="warning" size="small">📤 导入Excel</el-button>
             </el-upload>
             <el-button type="info" size="small" plain @click="downloadTargetTemplate">📥 下载模板</el-button>
           </div>
@@ -254,7 +254,7 @@
                 <el-button type="primary" size="small" @click="showAddTargetDialog = true" :disabled="canEditUsers === false">+ 添加</el-button>
                 <el-button type="success" size="small" @click="openBatchTargetDialog" :disabled="canEditUsers === false">📋 批量粘贴</el-button>
                 <el-upload :auto-upload="false" :show-file-list="false" accept=".xlsx,.xls" :on-change="handleTargetExcelUpload">
-                  <el-button type="warning" size="small" :loading="targetUploading" :disabled="canEditUsers === false">📤 导入Excel</el-button>
+                  <el-button type="warning" size="small" :disabled="canEditUsers === false">📤 导入Excel</el-button>
                 </el-upload>
                 <el-button type="info" size="small" plain @click="downloadTargetTemplate">📥 下载模板</el-button>
               </div>
@@ -346,46 +346,6 @@
       <template #footer>
         <el-button @click="showAddTargetDialog = false">取消</el-button>
         <el-button type="primary" :loading="savingTargets" @click="handleSaveTarget">确定添加</el-button>
-      </template>
-    </el-dialog>
-
-    <!-- 批量粘贴测评对象对话框 -->
-    <el-dialog v-model="showBatchTargetDialog" title="批量添加测评对象" width="700px" destroy-on-close>
-      <div style="margin-bottom: 12px;">
-        <span>对象类型：</span>
-        <el-radio-group v-model="batchTargetType" size="small">
-          <el-radio value="leader">干部</el-radio>
-          <el-radio value="team">班子</el-radio>
-        </el-radio-group>
-      </div>
-      <div style="margin-bottom: 12px; color: #909399; font-size: 13px;">
-        每行一人，格式：姓名,职务,单位（职务为干部必填）
-      </div>
-      <el-input
-        v-model="batchTargetText"
-        type="textarea"
-        :rows="6"
-        placeholder="张三,局长,公安局&#10;李四,副局长,税务局&#10;王五,科长,教育局"
-        style="font-family: monospace;"
-      />
-      <div v-if="parsedBatchTargets.length > 0" style="margin-top: 12px;">
-        <div style="color: #67c23a; margin-bottom: 8px;">已解析 {{ parsedBatchTargets.length }} 条记录：</div>
-        <el-table :data="parsedBatchTargets" size="small" border max-height="200">
-          <el-table-column prop="target_name" label="姓名" width="100" />
-          <el-table-column prop="position" label="职务" width="120" />
-          <el-table-column prop="unit_name" label="单位" min-width="120" />
-          <el-table-column label="操作" width="60">
-            <template #default="{ row }">
-              <el-button type="danger" link size="small" @click="removeParsedTarget(row._idx)">移除</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      <template #footer>
-        <el-button @click="showBatchTargetDialog = false">取消</el-button>
-        <el-button type="primary" :loading="savingTargets" :disabled="parsedBatchTargets.length === 0" @click="handleBatchSaveTarget">
-          确认添加 {{ parsedBatchTargets.length }} 条
-        </el-button>
       </template>
     </el-dialog>
 
@@ -536,13 +496,9 @@ const targetRules = {
   target_name: [{ required: true, message: '请输入姓名或名称', trigger: 'blur' }],
 }
 
-// 批量粘贴相关
-const showBatchTargetDialog = ref(false)
-const batchTargetText = ref('')
-const batchTargetType = ref('leader')
+// 批量粘贴相关（企业版功能，CE 仅弹升级提示）
 
-// Excel 上传相关
-const targetUploading = ref(false)
+// Excel 上传相关（企业版功能，CE 仅弹升级提示）
 
 const canEditUsers = computed(() => {
   return true
@@ -591,26 +547,6 @@ const statusMap = {
   in_progress: { label: '测评中', type: 'primary' },
   completed: { label: '已完成', type: 'success' },
 }
-
-const parsedBatchTargets = computed(() => {
-  const text = batchTargetText.value.trim()
-  if (!text) return []
-  const lines = text.split(/[\r\n]+/)
-  return lines
-    .map((line, idx) => {
-      const parts = line.split(/[,，\t]+/).map(s => s.trim())
-      const name = parts[0] || ''
-      if (!name) return null
-      return {
-        _idx: idx + 1,
-        target_name: name,
-        target_type: batchTargetType.value,
-        position: parts[1] || '',
-        unit_name: parts[2] || '',
-      }
-    })
-    .filter(Boolean)
-})
 
 const filteredAvailableUsers = computed(() => {
   const keyword = userSearchKeyword.value.trim().toLowerCase()
@@ -800,7 +736,7 @@ const handleSubmit = async () => {
       router.push('/examines')
 
     } else {
-      let newId = draftExamineId.value
+      let newId = null
 
       if (newId) {
         await request.put(`/examines/${newId}`, {
@@ -1018,172 +954,23 @@ const onTargetSelectionChange = (rows) => {
 }
 
 const handleBatchRemoveTargets = async () => {
-  if (editionStore.isCommunity) { upgradeDialog.value?.open(); return }
-  if (selectedTargetIds.value.length === 0) return
-
-  try {
-    await ElMessageBox.confirm(
-      `确定要删除选中的 ${selectedTargetIds.value.length} 个测评对象吗？`,
-      '批量删除',
-      { confirmButtonText: '确定删除', cancelButtonText: '取消', type: 'warning' }
-    )
-  } catch { return }
-
-  const idSet = new Set(selectedTargetIds.value)
-
-  if (!isEdit) {
-    targets.value = targets.value.filter(t => !idSet.has(t.id) && !idSet.has(t._idx))
-    ElMessage.success(`已删除 ${selectedTargetIds.value.length} 个测评对象`)
-    selectedTargetIds.value = []
-    return
-  }
-
-  const updatedTargets = targets.value.filter(t => !idSet.has(t.id) && !idSet.has(t._idx))
-
-  savingTargets.value = true
-  try {
-    await request.post(`/examines/${examineId}/targets/batch`, { targets: updatedTargets })
-    ElMessage.success(`已删除 ${selectedTargetIds.value.length} 个测评对象`)
-    selectedTargetIds.value = []
-    await fetchTargets()
-  } catch (error) {
-    console.error('batch remove targets error:', error)
-    ElMessage.error('批量删除失败')
-  } finally {
-    savingTargets.value = false
-  }
+  upgradeDialog.value?.open()
 }
 
 // ====== 批量粘贴相关方法 ======
 
 function openBatchTargetDialog() {
-  if (editionStore.isCommunity) { upgradeDialog.value?.open(); return }
-  batchTargetText.value = ''
-  batchTargetType.value = 'leader'
-  showBatchTargetDialog.value = true
+  upgradeDialog.value?.open()
 }
 
-function removeParsedTarget(idx) {
-  const lines = batchTargetText.value.split('\n')
-  if (idx >= 1 && idx <= lines.length) {
-    lines.splice(idx - 1, 1)
-    batchTargetText.value = lines.join('\n')
-  }
-}
-
-async function handleBatchSaveTarget() {
-  if (parsedBatchTargets.value.length === 0) return
-
-  const newItems = parsedBatchTargets.value.map(t => ({
-    target_type: t.target_type,
-    target_name: t.target_name,
-    position: t.position,
-    unit_name: t.unit_name,
-  }))
-
-  if (!isEdit) {
-    targets.value.push(...newItems)
-    ElMessage.success(`成功添加 ${parsedBatchTargets.value.length} 条测评对象`)
-    showBatchTargetDialog.value = false
-    batchTargetText.value = ''
-    return
-  }
-
-  savingTargets.value = true
-  try {
-    const newTargets = [...targets.value, ...newItems]
-    await request.post(`/examines/${examineId}/targets/batch`, { targets: newTargets })
-    ElMessage.success(`成功添加 ${parsedBatchTargets.value.length} 条测评对象`)
-    showBatchTargetDialog.value = false
-    await fetchTargets()
-  } catch (error) {
-    console.error('batch save target error:', error)
-    ElMessage.error(error?.response?.data?.message || '保存失败')
-  } finally {
-    savingTargets.value = false
-  }
-}
-
-// Excel 上传相关方法
-const draftExamineId = ref(null)
-
-const ensureDraftExamine = async () => {
-  if (!isEdit && !draftExamineId.value) {
-    // 不校验表单——只需一个草稿 ID 即可导入测评对象/参评人员
-    const res = await request.post('/examines', {
-      examine_name: form.examine_name || '（未命名测评任务）',
-      period: form.period || '',
-      examine_type: form.examine_type || 'leader',
-      unit_id: form.unit_id,
-      template_id: form.template_id,
-      start_time: form.start_time ? dayjs(form.start_time).format('YYYY-MM-DD HH:mm:ss') : null,
-      end_time: form.end_time ? dayjs(form.end_time).format('YYYY-MM-DD HH:mm:ss') : null,
-      weight_mode: form.weight_mode,
-      weight_a: Number(form.weight_a),
-      weight_b: Number(form.weight_b),
-    })
-    draftExamineId.value = res.data.id || res.data.data?.id
-    ElMessage.success('已自动保存草稿，可继续配置')
-  }
-  return draftExamineId.value || examineId
-}
+// ====== Excel 上传相关方法 ======
 
 const downloadTargetTemplate = async () => {
-  if (editionStore.isCommunity) { upgradeDialog.value?.open(); return }
-  try {
-    const res = await request.get('/examines/targets/template', {
-      responseType: 'blob',
-    })
-    const blob = res instanceof Blob ? res : new Blob([res])
-    const url = window.URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = '测评对象导入模板.xlsx'
-    document.body.appendChild(link)
-    link.click()
-    window.URL.revokeObjectURL(url)
-    document.body.removeChild(link)
-  } catch (error) {
-    ElMessage.error('模板下载失败')
-  }
+  upgradeDialog.value?.open()
 }
 
-const handleTargetExcelUpload = async (uploadFile) => {
-  if (editionStore.isCommunity) { upgradeDialog.value?.open(); return }
-  const eid = await ensureDraftExamine()
-  if (!eid) return
-
-  const formData = new FormData()
-  formData.append('file', uploadFile.raw)
-  formData.append('target_type', 'leader')
-
-  targetUploading.value = true
-  try {
-    const res = await request.post(`/examines/${eid}/targets/import`, formData, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    })
-
-    const imported = res.data.targets || []
-    if (imported.length === 0) {
-      ElMessage.warning('未解析到有效数据')
-      return
-    }
-
-    if (draftExamineId.value) {
-      targets.value.push(...imported)
-      ElMessage.success(`成功导入 ${imported.length} 条测评对象`)
-    } else {
-      const newTargets = [...targets.value, ...imported]
-      await request.post(`/examines/${examineId}/targets/batch`, { targets: newTargets })
-      ElMessage.success(`成功导入 ${imported.length} 条测评对象`)
-      await fetchTargets()
-    }
-  } catch (error) {
-    console.error('excel import error:', error)
-    ElMessage.error(error?.response?.data?.message || '导入失败')
-  } finally {
-    targetUploading.value = false
-  }
+const handleTargetExcelUpload = async () => {
+  upgradeDialog.value?.open()
 }
 
 // ====== 用户管理相关方法 ======
