@@ -8,7 +8,7 @@
       <el-menu
         :default-active="activeMenu"
         :default-openeds="['examine-center', 'dept-user-manage', 'system-settings']"
-        router
+        @select="handleMenuSelect"
         background-color="#1B4D7C"
         text-color="rgba(255,255,255,0.85)"
         active-text-color="#FFFFFF"
@@ -141,17 +141,23 @@
       </el-main>
     </el-container>
   </el-container>
+
+  <UpgradeDialog ref="upgradeDialogRef" />
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useEditionStore } from '@/stores/edition'
+import UpgradeDialog from '@/components/UpgradeDialog.vue'
 import { ElMessageBox } from 'element-plus'
 
 const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
+const editionStore = useEditionStore()
+const upgradeDialogRef = ref(null)
 
 const activeMenu = computed(() => route.path)
 
@@ -162,6 +168,14 @@ function getRoleText(role) {
     viewer: '查看管理员',
   }
   return map[role] || role
+}
+
+function handleMenuSelect(index) {
+  if (index === '/logs') {
+    upgradeDialogRef.value?.open()
+    return
+  }
+  router.push(index)
 }
 
 async function handleCommand(command) {

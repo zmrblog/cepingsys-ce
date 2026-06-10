@@ -537,7 +537,7 @@ class ExamineController
             ->toArray();
 
         $query = DB::table('users')
-            ->where('status', 1)
+            ->whereIn('status', ['active', '1'])
             ->select('id', 'name', 'phone', 'position', 'user_type', 'unit_id', 'source');
 
         if ($queryUnitId > 0) {

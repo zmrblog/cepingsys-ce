@@ -110,6 +110,7 @@ $app->group('/examines', function ($group) use ($container) {
     $group->put('/{id:[0-9]+}', [ExamineController::class, 'update']);
     $group->delete('/{id:[0-9]+}', [ExamineController::class, 'destroy']);
     $group->post('/{id:[0-9]+}/targets', [ExamineController::class, 'addTargets']);
+    $group->post('/{id:[0-9]+}/targets/batch', [ExamineController::class, 'addTargets']);
     $group->post('/{id:[0-9]+}/users', [ExamineController::class, 'assignUsers']);
     $group->get('/{id:[0-9]+}/users', [ExamineController::class, 'listUsers']);
     $group->post('/{id:[0-9]+}/users/add', [ExamineController::class, 'addUser']);
