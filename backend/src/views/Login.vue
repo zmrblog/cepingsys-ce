@@ -2,7 +2,7 @@
   <div class="login-container">
     <div class="login-card">
       <div class="login-header">
-        <h1>年度考核测评系统</h1>
+        <h1>考核测评系统社区版</h1>
         <p>管理后台</p>
       </div>
       

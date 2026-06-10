@@ -1,5 +1,5 @@
 -- =====================================================
--- 年度考核测评系统 - 数据库初始化脚本
+-- 考核测评系统社区版 - 数据库初始化脚本
 -- 数据库: MySQL 8.0+
 -- 字符集: utf8mb4
 -- 引擎: InnoDB
@@ -275,7 +275,7 @@ CREATE TABLE IF NOT EXISTS `system_configs` (
 
 -- 插入默认系统配置
 INSERT IGNORE INTO `system_configs` (`config_key`, `config_value`, `config_group`, `description`) VALUES
-('system_name', '年度考核测评系统', 'general', '系统名称'),
+('system_name', '考核测评系统社区版', 'general', '系统名称'),
 ('jwt_expire_hours', '24', 'security', 'JWT令牌过期时间(小时)'),
 ('ip_filter_enabled', '1', 'security', '是否启用国外IP过滤'),
 ('upload_max_size', '10485760', 'upload', '上传文件最大大小(字节)'),

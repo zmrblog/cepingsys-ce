@@ -17,7 +17,7 @@ return [
     ],
 
     'app' => [
-        'name' => env('APP_NAME', '年度考核测评系统'),
+        'name' => env('APP_NAME', '考核测评系统社区版'),
         'env' => env('APP_ENV', 'production'),
         'debug' => env('APP_DEBUG', false),
         'url' => env('APP_URL', 'http://test.com:2001'),

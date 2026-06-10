@@ -2,7 +2,7 @@
   <div class="login-page">
     <div class="login-container" :class="{ 'register-mode': isRegister, 'reset-mode': isReset }">
       <div class="login-header">
-        <h1>年度考核测评系统</h1>
+        <h1>考核测评系统社区版</h1>
         <p v-if="!isReset">{{ isRegister ? '用户注册' : '用户登录' }}</p>
         <p v-else>找回密码</p>
       </div>

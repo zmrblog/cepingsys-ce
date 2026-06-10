@@ -226,7 +226,7 @@ class InstallController
 
         // Step 1: Write .env
         try {
-            $envContent = "APP_NAME=年度考核测评系统\nAPP_ENV=production\nAPP_DEBUG=false\nAPP_URL=http://localhost\n";
+            $envContent = "APP_NAME=考核测评系统社区版\nAPP_ENV=production\nAPP_DEBUG=false\nAPP_URL=http://localhost\n";
             $envContent .= "DB_HOST=" . ($db['host'] ?? '127.0.0.1') . "\n";
             $envContent .= "DB_PORT=" . ($db['port'] ?? '3306') . "\n";
             $envContent .= "DB_DATABASE=" . ($db['database'] ?? 'examine_system') . "\n";
