@@ -2,16 +2,10 @@
 declare(strict_types=1);
 
 /**
- * 企业版路由
+ * 社区版路由
  *
- * 基于社区版基础路由 + 企业版扩展路由。
- * CE 的 routes.php 定义了所有基础路由，EE 的 routes-enterprise.php 叠加企业版功能。
- *
- * 部署方式：
- * 1. 先部署社区版完整代码
- * 2. 复制本文件覆盖 CE 的 routes.php（或直接使用 CE 的 routes.php，自动加载 routes-enterprise.php）
- * 3. 复制 routes-enterprise.php、LicenseMiddleware.php、AuditController.php 等到对应目录
- * 4. 放置授权文件到 storage/.license.json
+ * 精简自企业版完整路由，仅保留社区版可用的基础功能。
+ * 删除的功能：批量操作、Excel导入导出、审计子系统、操作日志、管理员删除。
  */
 
 use App\Controllers\AuthController;
@@ -22,13 +16,9 @@ use App\Controllers\ExamineController;
 use App\Controllers\AnswerController;
 use App\Controllers\StatisticsController;
 use App\Controllers\AdminController;
-use App\Controllers\ImportController;
 use App\Controllers\InstallController;
 use App\Middleware\AuthMiddleware;
 use App\Middleware\AnswerAuthMiddleware;
-use App\Middleware\LicenseMiddleware;
-
-$licenseMw = new LicenseMiddleware($container);
 
 // ===== 安装向导路由 =====
 $app->get('/install/check-env', [InstallController::class, 'checkEnv']);
@@ -39,11 +29,11 @@ $app->post('/install/run', [InstallController::class, 'runInstall']);
 // ===== 系统信息 =====
 $app->get('/system/edition', function ($request, $response) {
     $editionFile = __DIR__ . '/../edition.json';
-    $edition = '企业版';
+    $edition = '社区版';
     $version = 'v2026.05.28-1';
     if (file_exists($editionFile)) {
         $data = json_decode(file_get_contents($editionFile), true);
-        $edition = $data['edition'] ?? '企业版';
+        $edition = $data['edition'] ?? '社区版';
         $version = $data['version'] ?? $version;
     }
 
@@ -86,21 +76,13 @@ $app->group('/auth', function ($group) {
 $app->get('/units', [UnitController::class, 'index'])->add(new AuthMiddleware($container));
 $app->get('/units/{id:[0-9]+}', [UnitController::class, 'show'])->add(new AuthMiddleware($container));
 
-// 基础操作（社区版可用）
 $app->group('/units', function ($group) use ($container) {
     $group->post('', [UnitController::class, 'store']);
     $group->put('/{id:[0-9]+}', [UnitController::class, 'update']);
     $group->delete('/{id:[0-9]+}', [UnitController::class, 'destroy']);
 })->add(new AuthMiddleware($container));
 
-// EE 专属：批量删除
-$app->group('/units', function ($group) use ($container) {
-    $group->post('/batch', [UnitController::class, 'batchStore']);
-    $group->post('/batch-delete', [UnitController::class, 'batchDestroy']);
-})->add($licenseMw)->add(new AuthMiddleware($container));
-
 // ===== 用户路由 =====
-// 基础操作（社区版可用）
 $app->group('/users', function ($group) use ($container) {
     $group->get('', [UserController::class, 'index']);
     $group->get('/{id:[0-9]+}', [UserController::class, 'show']);
@@ -109,18 +91,6 @@ $app->group('/users', function ($group) use ($container) {
     $group->put('/{id:[0-9]+}/reset-password', [UserController::class, 'adminResetPassword']);
     $group->delete('/{id:[0-9]+}', [UserController::class, 'destroy']);
 })->add(new AuthMiddleware($container));
-
-// EE 专属：强制删除
-$app->group('/users', function ($group) use ($container) {
-    $group->post('/{id:[0-9]+}/force-delete', [UserController::class, 'forceDestroy']);
-    $group->post('/batch-force-delete', [UserController::class, 'batchForceDelete']);
-})->add($licenseMw)->add(new AuthMiddleware($container));
-
-// ===== 导入路由（企业版功能，授权后可用）=====
-$app->group('/import', function ($group) use ($container) {
-    $group->get('/download-template', [ImportController::class, 'downloadTemplate']);
-    $group->post('/users-units', [ImportController::class, 'importUsersUnits']);
-})->add($licenseMw)->add(new AuthMiddleware($container));
 
 // ===== 模板路由 =====
 $app->group('/templates', function ($group) use ($container) {
@@ -133,14 +103,12 @@ $app->group('/templates', function ($group) use ($container) {
 })->add(new AuthMiddleware($container));
 
 // ===== 测评任务路由 =====
-// 基础操作（社区版可用）
 $app->group('/examines', function ($group) use ($container) {
     $group->get('', [ExamineController::class, 'index']);
     $group->get('/{id:[0-9]+}', [ExamineController::class, 'show']);
     $group->post('', [ExamineController::class, 'store']);
     $group->put('/{id:[0-9]+}', [ExamineController::class, 'update']);
     $group->delete('/{id:[0-9]+}', [ExamineController::class, 'destroy']);
-    // 单个添加测评对象（创建模式下逐个添加使用此路由）
     $group->post('/{id:[0-9]+}/targets', [ExamineController::class, 'addTargets']);
     $group->post('/{id:[0-9]+}/users', [ExamineController::class, 'assignUsers']);
     $group->get('/{id:[0-9]+}/users', [ExamineController::class, 'listUsers']);
@@ -155,21 +123,6 @@ $app->group('/examines', function ($group) use ($container) {
     $group->get('/archive-overview', [ExamineController::class, 'archiveOverview']);
 })->add(new AuthMiddleware($container));
 
-// EE 专属：批量删除任务
-$app->group('/examines', function ($group) use ($container) {
-    $group->post('/batch-delete', [ExamineController::class, 'batchDestroy']);
-})->add($licenseMw)->add(new AuthMiddleware($container));
-
-// EE 专属：测评对象批量操作（导入/批量粘贴/批量删除/下载模板）
-$app->group('/examines', function ($group) use ($container) {
-    // 批量保存/删除测评对象（覆盖整个列表）
-    $group->post('/{id:[0-9]+}/targets/batch', [ExamineController::class, 'addTargets']);
-    // 导入Excel
-    $group->post('/{id:[0-9]+}/targets/import', [ExamineController::class, 'importTargets']);
-    // 下载导入模板
-    $group->get('/targets/template', [ExamineController::class, 'downloadTargetTemplate']);
-})->add($licenseMw)->add(new AuthMiddleware($container));
-
 // ===== 答题路由（移动端，公开）=====
 $app->group('/answers', function ($group) {
     $group->post('', [AnswerController::class, 'save']);
@@ -181,7 +134,7 @@ $app->group('/answers', function ($group) {
     $group->post('/complete-target', [AnswerController::class, 'completeTarget']);
 })->add(new AnswerAuthMiddleware($container));
 
-// ===== 统计路由 =====
+// ===== 统计路由（仅查看，无导出）=====
 $app->group('/statistics', function ($group) use ($container) {
     $group->get('/examine/{id:[0-9]+}', [StatisticsController::class, 'examineStats']);
     $group->get('/examine/{id:[0-9]+}/target/{targetId}', [StatisticsController::class, 'targetStats']);
@@ -190,22 +143,13 @@ $app->group('/statistics', function ($group) use ($container) {
     $group->get('/examine/{id:[0-9]+}/score-summary', [StatisticsController::class, 'scoreSummary']);
 })->add(new AuthMiddleware($container));
 
-// ===== 管理员路由 =====
-// 基础操作（社区版可用）
+// ===== 管理员路由（无删除）=====
 $app->group('/admins', function ($group) use ($container) {
     $group->get('', [AdminController::class, 'index']);
     $group->get('/{id:[0-9]+}', [AdminController::class, 'show']);
     $group->post('', [AdminController::class, 'store']);
     $group->put('/{id:[0-9]+}', [AdminController::class, 'update']);
 })->add(new AuthMiddleware($container));
-
-// EE 专属：删除管理员
-$app->group('/admins', function ($group) use ($container) {
-    $group->delete('/{id:[0-9]+}', [AdminController::class, 'destroy']);
-})->add($licenseMw)->add(new AuthMiddleware($container));
-
-$app->get('/logs', [AdminController::class, 'logs'])
-    ->add(new AuthMiddleware($container));
 
 // ===== 系统配置路由 =====
 $app->group('/system-configs', function ($group) {
@@ -217,10 +161,5 @@ $app->group('/system-configs', function ($group) {
 $app->group('/security', function ($group) {
     $group->get('/ip-block-stats', [\App\Controllers\SecurityController::class, 'getIpBlockStats']);
 })->add(new AuthMiddleware($container));
-
-// ===== 企业版扩展路由（授权验证由 routes-enterprise.php 中的 LicenseMiddleware 处理）=====
-if (file_exists(__DIR__ . '/routes-enterprise.php')) {
-    require __DIR__ . '/routes-enterprise.php';
-}
 
 $GLOBALS['container'] = $container;
