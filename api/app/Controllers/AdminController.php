@@ -25,7 +25,7 @@ class AdminController
             });
         }
 
-        if ($role && in_array($role, ['super', 'template', 'viewer'])) {
+        if ($role && in_array($role, ['super', 'template', 'viewer', 'audit'])) {
             $query->where('role', $role);
         }
 
@@ -103,7 +103,7 @@ class AdminController
             return error_response($response, 400, '真实姓名不能为空');
         }
 
-        if (!in_array($role, ['super', 'template', 'viewer'])) {
+        if (!in_array($role, ['super', 'template', 'viewer', 'audit'])) {
             return error_response($response, 400, '无效的角色类型');
         }
 
@@ -165,7 +165,7 @@ class AdminController
 
         if (array_key_exists('role', $data)) {
             $role = trim($data['role']);
-            if (!in_array($role, ['super', 'template', 'viewer'])) {
+            if (!in_array($role, ['super', 'template', 'viewer', 'audit'])) {
                 return error_response($response, 400, '无效的角色类型');
             }
             $updateData['role'] = $role;

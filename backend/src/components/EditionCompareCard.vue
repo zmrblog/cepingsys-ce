@@ -69,7 +69,7 @@ const compareFeatures = computed(() => {
     { name: 'A/B类加权统计', community: true, enterprise: true },
     { name: '反向测评防刷', community: true, enterprise: true },
     { name: '数据归档', community: true, enterprise: true },
-    { name: '用户管理', community: '单组织≤100人', enterprise: '无人数限制' },
+    { name: '用户管理', community: '单组织≤50人', enterprise: '无人数限制' },
     { name: 'Excel导出', community: false, enterprise: true },
     { name: '审计子系统', community: false, enterprise: true },
     { name: '批量删除', community: false, enterprise: true },

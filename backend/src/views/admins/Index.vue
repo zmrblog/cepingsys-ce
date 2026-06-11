@@ -29,6 +29,7 @@
           <el-option label="超级管理员" value="super" />
           <el-option label="模板管理员" value="template" />
           <el-option label="查看管理员" value="viewer" />
+          <el-option label="审计管理员" value="audit" />
         </el-select>
 
         <el-button type="primary" @click="fetchData" style="margin-left: 10px;">
@@ -131,6 +132,7 @@
             <el-option label="超级管理员 (super)" value="super" />
             <el-option label="模板管理员 (template)" value="template" />
             <el-option label="查看管理员 (viewer)" value="viewer" />
+            <el-option label="审计管理员 (audit)" value="audit" />
           </el-select>
         </el-form-item>
 
@@ -371,6 +373,7 @@ function getRoleText(role) {
     super: '超级管理员',
     template: '模板管理员',
     viewer: '查看管理员',
+    audit: '审计管理员',
   }
   return map[role] || role
 }
@@ -380,6 +383,7 @@ function getRoleType(role) {
     super: 'danger',
     template: 'warning',
     viewer: 'info',
+    audit: 'success',
   }
   return map[role] || ''
 }

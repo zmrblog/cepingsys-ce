@@ -44,7 +44,7 @@ $app->get('/system/edition', function ($request, $response) {
         ['key' => 'weighted_stats',     'name' => 'A/B类加权统计',  'ce' => true,  'ee' => true],
         ['key' => 'reverse_evaluation', 'name' => '反向测评防刷',   'ce' => true,  'ee' => true],
         ['key' => 'data_archive',       'name' => '数据归档',       'ce' => true,  'ee' => true],
-        ['key' => 'user_manage',        'name' => '用户管理',       'ce' => '≤100人', 'ee' => '无限制'],
+        ['key' => 'user_manage',        'name' => '用户管理',       'ce' => '≤50人', 'ee' => '无限制'],
         ['key' => 'excel_export',       'name' => 'Excel导出',      'ce' => false, 'ee' => true],
         ['key' => 'batch_excel_export', 'name' => '批量Excel导出',  'ce' => false, 'ee' => true],
         ['key' => 'batch_delete',       'name' => '批量删除',       'ce' => false, 'ee' => true],

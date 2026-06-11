@@ -32,7 +32,7 @@ export const useEditionStore = defineStore('edition', () => {
   }
 
   /**
-   * 获取功能的社区版说明（如 "≤100人"、"默认水印"）
+   * 获取功能的社区版说明（如 "≤50人"、）
    */
   function getFeatureCeInfo(key) {
     const f = features.value.find(f => f.key === key)
