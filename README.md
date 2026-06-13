@@ -1,4 +1,4 @@
-# 干部、部门考核测评系统 (AssessSys)
+# 干部、部门考核测评系统 (CepingSys)
 
 > 企业级考核测评系统，支持民主测评、干部考核、部门考核等多种场景
 
@@ -37,8 +37,8 @@
 
 | 版本 | 前端地址 | 后台地址 | 账号密码 |
 |-----|---------|---------|---------|
-| 社区版 | [http://sq.zmrbk.com](http://sq.zmrbk.com) | [http://sq.zmrbk.com:2001](http://sq.zmrbk.com:2001) | admin / admin123 |
-| 企业版 | [http://qy.zmrbk.com](http://qy.zmrbk.com) | [http://qy.zmrbk.com:2001](http://qy.zmrbk.com:2001) | admin / admin123 |
+| 社区版 | [http://sq.zmrbk.com:2002](http://sq.zmrbk.com) | [http://sq.zmrbk.com:2001](http://sq.zmrbk.com:2001) | admin / admin123 |
+| 企业版 | [http://qy.zmrbk.com:2002](http://qy.zmrbk.com) | [http://qy.zmrbk.com:2001](http://qy.zmrbk.com:2001) | admin / admin123 |
 
 ## 版本对比
 
