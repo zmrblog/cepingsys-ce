@@ -1,6 +1,8 @@
-# Cadre and Department Assessment System (AssessSys)
+# Cadre and Department Assessment System (CepingSys)
 
 > Enterprise-level assessment system supporting democratic evaluation, cadre assessment, department assessment and other scenarios.
+
+**[中文说明](README.md)**
 
 ## Features
 
@@ -23,8 +25,8 @@
 
 | Version | Frontend | Admin | Username/Password |
 |---------|---------|-------|------------------|
-| Community | [http://sq.zmrbk.com](http://sq.zmrbk.com) | [http://sq.zmrbk.com:2001](http://sq.zmrbk.com:2001) | admin / admin123 |
-| Enterprise | [http://qy.zmrbk.com](http://qy.zmrbk.com) | [http://qy.zmrbk.com:2001](http://qy.zmrbk.com:2001) | admin / admin123 |
+| Community | [http://sq.zmrbk.com:2002](http://sq.zmrbk.com) | [http://sq.zmrbk.com:2001](http://sq.zmrbk.com:2001) | admin / admin123 |
+| Enterprise | [http://qy.zmrbk.com:2002](http://qy.zmrbk.com) | [http://qy.zmrbk.com:2001](http://qy.zmrbk.com:2001) | admin / admin123 |
 
 ## Version Comparison
 
@@ -35,12 +37,27 @@
 | Data Import/Export | ✗ | ✓ |
 | Analysis Export | ✗ | ✓ |
 | Audit System | ✗ | ✓ |
+| User Limit | Within 50 | Unlimited |
 | Technical Support | Community | Official |
 
 **For Enterprise Edition purchase:**
 - 💬 WeChat: dldxzmr
 - 📦 QQ Group: 248529293
 - 🌐 Website: [www.zmrbk.com](https://www.zmrbk.com)
+
+## Project Screenshots
+
+### Admin Dashboard
+![Admin Dashboard](pic/后台首页.jpg)
+![Add Assessment Task](pic/添加测评任务.jpg)
+![Add Indicators](pic/添加测评指标.jpg)
+![Assessment Analysis](pic/测评分析.jpg)
+![Feature Comparison](pic/功能对比.jpg)
+
+### User Portal
+![User Registration](pic/用户注册页面.jpg)
+![Take Assessment](pic/用户测评过程.jpg)
+![After Assessment](pic/用户测评结束后.jpg)
 
 ## Tech Stack
 
@@ -85,7 +102,6 @@
 
 We welcome issues and suggestions! You can participate through:
 - Submit bug reports or feature requests in GitHub Issues
-- Send emails to project mailbox
 - Join QQ group for discussion
 
 ## License
