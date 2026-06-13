@@ -75,7 +75,6 @@
             v-model="ipFilterEnabled"
             active-text="已开启"
             inactive-text="已关闭"
-            :loading="switchLoading"
             @change="handleIpFilterChange"
           />
         </div>
@@ -343,6 +342,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import request from '@/api/request'
+import { ElMessageBox } from 'element-plus'
 
 const userStore = useUserStore()
 
@@ -367,7 +367,6 @@ const todayStats = ref({
 })
 
 const ipFilterEnabled = ref(false)
-const switchLoading = ref(false)
 const securityStats = ref({
   is_enabled: false,
   todayBlocks: 0,
@@ -418,7 +417,6 @@ onMounted(async () => {
   await Promise.all([
     fetchStats(),
     fetchAllExamines(),
-    fetchSecurityStatus(),
   ])
 })
 
@@ -491,35 +489,24 @@ function getProgressColor(percentage) {
   return '#f56c6c'
 }
 
-async function fetchSecurityStatus() {
-  try {
-    const res = await request.get('/security/ip-block-stats')
-    const data = res.data || {}
-    securityStats.value = {
-      is_enabled: data.is_enabled || false,
-      todayBlocks: data.today_blocks || 0,
-      totalBlocks: data.total_blocks || 0,
-      recentBlocks: data.recent_blocks || [],
-    }
-    ipFilterEnabled.value = data.is_enabled === true
-  } catch (error) {
-    console.error('获取安全状态失败:', error)
-  }
-}
-
 async function handleIpFilterChange(value) {
-  switchLoading.value = true
-  try {
-    await request.put('/system-configs', {
-      config_key: 'ip_filter_enabled',
-      config_value: value ? '1' : '0',
-    })
-    await fetchSecurityStatus()
-  } catch (error) {
-    ipFilterEnabled.value = !value
-    console.error('更新IP过滤开关失败:', error)
-  } finally {
-    switchLoading.value = false
+  if (value === true) {
+    try {
+      await ElMessageBox.confirm(
+        'IP过滤/安全防护为企业版专属功能，包含国外IP拦截、登录频率限制等。是否联系管理员了解升级事宜？',
+        '企业版功能',
+        {
+          confirmButtonText: '了解升级',
+          cancelButtonText: '关闭',
+          type: 'warning',
+        }
+      )
+      // 用户确认了解升级，可打开升级弹窗或联系信息
+      ipFilterEnabled.value = false
+    } catch {
+      // 用户取消
+      ipFilterEnabled.value = false
+    }
   }
 }
 </script>

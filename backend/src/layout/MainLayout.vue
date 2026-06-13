@@ -98,6 +98,10 @@
           </el-menu-item>
         </el-sub-menu>
 
+        <el-menu-item index="/feature-comparison" class="menu-item-no-icon">
+          <span class="menu-text">功能对比</span>
+        </el-menu-item>
+
         <el-menu-item index="/guide">
           <el-icon><QuestionFilled /></el-icon>
           <span>使用说明</span>
@@ -284,6 +288,13 @@ async function handleCommand(command) {
         height: 44px;
         line-height: 44px;
         font-size: 13px;
+      }
+    }
+
+    // 无图标的菜单项保持文字对齐
+    .menu-item-no-icon {
+      .menu-text {
+        padding-left: 28px;
       }
     }
   }

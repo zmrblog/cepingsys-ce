@@ -258,16 +258,8 @@ async function handleExport() {
     if (editionStore.isCommunity) { upgradeDialog.value?.open(); return }
 
     try {
-      let url = ''
-      let name = ''
-
-      if (activeTab.value === 'vote') {
-        url = `/statistics/examine/${currentTask.value.id}/by-unit/export`
-        name = `得票汇总_${currentTask.value.examine_name}`
-      } else {
-        url = `/statistics/examine/${currentTask.value.id}/export`
-        name = `得分汇总_${currentTask.value.examine_name}`
-      }
+      const url = `/statistics/examine/${currentTask.value.id}/export`
+      const name = `测评汇总_${currentTask.value.examine_name}`
 
       const response = await request.get(url, { responseType: 'blob' })
       const blob = response instanceof Blob ? response : new Blob([response])
@@ -289,7 +281,7 @@ async function handleExport() {
     try {
       const res = await request.post('/statistics/batch-export', {
         task_ids: selectedTaskIds.value,
-        type: activeTab.value
+        type: 'score'
       }, { responseType: 'blob' })
 
       const blob = res instanceof Blob ? res : new Blob([res])
@@ -395,12 +387,14 @@ async function handleExport() {
 .task-card:hover {
   border-color: #c6e2ff;
   background: #f0f9ff;
+  box-shadow: 0 1px 4px rgba(64, 158, 255, 0.15);
 }
 
 .task-card.active {
-  background: #409eff;
+  background: linear-gradient(135deg, #409eff, #2d7fd3);
   color: #fff;
   border-color: #409eff;
+  box-shadow: 0 2px 8px rgba(64, 158, 255, 0.3);
 }
 
 .task-name {
@@ -416,6 +410,10 @@ async function handleExport() {
 .task-time {
   font-size: 11px;
   color: #8A96A6;
+}
+
+.task-card.active .task-time {
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .main-content {

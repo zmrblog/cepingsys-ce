@@ -55,7 +55,13 @@ request.interceptors.response.use(
       return res
     }
     
-    if (res.code !== 200 && res.code !== undefined) {
+    // 非 JSON 对象响应视为异常（如 PHP 致命错误输出的 HTML）
+    if (typeof res !== 'object' || res === null) {
+      ElMessage.error('服务器返回格式异常，请稍后重试')
+      return Promise.reject(new Error('Invalid response format'))
+    }
+    
+    if (res.code !== 200) {
       ElMessage.error(res.message || '请求失败')
       
       if (res.code === 401) {

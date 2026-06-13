@@ -27,9 +27,6 @@
 
         <el-select v-model="filters.role" placeholder="角色筛选" clearable style="width: 150px; margin-left: 10px;" @change="fetchData">
           <el-option label="超级管理员" value="super" />
-          <el-option label="模板管理员" value="template" />
-          <el-option label="查看管理员" value="viewer" />
-          <el-option label="审计管理员" value="audit" />
         </el-select>
 
         <el-button type="primary" @click="fetchData" style="margin-left: 10px;">
@@ -130,9 +127,6 @@
         <el-form-item label="角色" prop="role">
           <el-select v-model="form.role" placeholder="请选择角色" style="width: 100%;">
             <el-option label="超级管理员 (super)" value="super" />
-            <el-option label="模板管理员 (template)" value="template" />
-            <el-option label="查看管理员 (viewer)" value="viewer" />
-            <el-option label="审计管理员 (audit)" value="audit" />
           </el-select>
         </el-form-item>
 
@@ -258,7 +252,7 @@ function handleAdd() {
     username: '',
     password: '',
     real_name: '',
-    role: 'viewer',
+    role: 'super',
     status: 1,
   }
   dialogVisible.value = true
@@ -371,9 +365,6 @@ function resetForm() {
 function getRoleText(role) {
   const map = {
     super: '超级管理员',
-    template: '模板管理员',
-    viewer: '查看管理员',
-    audit: '审计管理员',
   }
   return map[role] || role
 }
@@ -381,9 +372,6 @@ function getRoleText(role) {
 function getRoleType(role) {
   const map = {
     super: 'danger',
-    template: 'warning',
-    viewer: 'info',
-    audit: 'success',
   }
   return map[role] || ''
 }

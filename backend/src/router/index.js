@@ -111,6 +111,12 @@ const routes = [
         meta: { title: '注册用户管理' },
       },
       {
+        path: 'feature-comparison',
+        name: 'FeatureComparison',
+        component: () => import('@/views/Help/FeatureComparison.vue'),
+        meta: { title: '功能对比' },
+      },
+      {
         path: 'guide',
         name: 'Guide',
         component: () => import('@/views/Help/Guide.vue'),

@@ -158,9 +158,4 @@ $app->group('/system-configs', function ($group) {
     $group->put('', [\App\Controllers\SystemConfigController::class, 'updateConfig']);
 })->add(new AuthMiddleware($container));
 
-// ===== 安全路由 =====
-$app->group('/security', function ($group) {
-    $group->get('/ip-block-stats', [\App\Controllers\SecurityController::class, 'getIpBlockStats']);
-})->add(new AuthMiddleware($container));
-
 $GLOBALS['container'] = $container;

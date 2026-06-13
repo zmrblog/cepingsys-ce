@@ -1,8 +1,6 @@
 <?php
 declare(strict_types=1);
 
-use App\Middleware\IpFilterMiddleware;
-
 $app->add(function ($request, $handler) use ($container) {
     $request = $request->withAttribute('container', $container);
     return $handler->handle($request);
@@ -61,19 +59,4 @@ $app->options('/{routes:.+}', function ($request, $response) {
     return $response;
 });
 
-$config = $container->get('config');
-
-$mmdbPath = $config['ip_filter']['mmdb_path'];
-if ($mmdbPath && is_file($mmdbPath)) {
-    try {
-        $app->add(new IpFilterMiddleware($mmdbPath));
-    } catch (\Exception $e) {
-        $dir = __DIR__ . '/../storage/logs';
-        if (!is_dir($dir)) { @mkdir($dir, 0755, true); }
-        @file_put_contents($dir . '/ipfilter.log', date('Y-m-d H:i:s') . ' LOAD_ERR: ' . $e->getMessage() . PHP_EOL, FILE_APPEND);
-    }
-} else {
-    $dir = __DIR__ . '/../storage/logs';
-    if (!is_dir($dir)) { @mkdir($dir, 0755, true); }
-    @file_put_contents($dir . '/ipfilter.log', date('Y-m-d H:i:s') . ' LOAD_SKIP: mmdb not found, middleware not loaded' . PHP_EOL, FILE_APPEND);
-}
+$GLOBALS['container'] = $container;

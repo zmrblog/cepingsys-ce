@@ -25,7 +25,7 @@ class AdminController
             });
         }
 
-        if ($role && in_array($role, ['super', 'template', 'viewer', 'audit'])) {
+        if ($role && in_array($role, ['super'])) {
             $query->where('role', $role);
         }
 
@@ -67,11 +67,15 @@ class AdminController
         $username = trim($data['username'] ?? '');
         $password = trim($data['password'] ?? '');
         $realName = trim($data['real_name'] ?? '');
-        $role = trim($data['role'] ?? 'viewer');
+        $role = trim($data['role'] ?? 'super');
         $currentRole = $request->getAttribute('admin_role') ?? '';
 
         if ($role === 'super' && $currentRole !== 'super') {
             return error_response($response, 403, '只有超级管理员可以创建超级管理员账号');
+        }
+
+        if (!in_array($role, ['super'])) {
+            return error_response($response, 400, '无效的角色类型');
         }
         $status = trim($data['status'] ?? 'active');
 
@@ -136,7 +140,7 @@ class AdminController
         return success_response($response, [
             'id' => $id,
             'message' => '管理员创建成功',
-        ], 201);
+        ]);
     }
 
     public function update(Request $request, Response $response, array $args): Response
@@ -165,7 +169,7 @@ class AdminController
 
         if (array_key_exists('role', $data)) {
             $role = trim($data['role']);
-            if (!in_array($role, ['super', 'template', 'viewer', 'audit'])) {
+            if (!in_array($role, ['super'])) {
                 return error_response($response, 400, '无效的角色类型');
             }
             $updateData['role'] = $role;

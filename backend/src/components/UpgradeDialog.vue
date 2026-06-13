@@ -42,13 +42,16 @@ import { ref, defineExpose } from 'vue'
 const visible = ref(false)
 
 const enterpriseFeatures = [
-  { name: 'Excel导出', desc: '单任务 / 按单位 / 按对象多维度' },
-  { name: '批量 Excel导出', desc: '批量多任务打包导出' },
-  { name: '审计子系统', desc: '独立审计入口，查看 / 导出 / 打印' },
+  { name: 'Excel导出', desc: '单任务 / 按单位 / 按对象多维度导出' },
+  { name: '批量Excel导出', desc: '多任务打包批量导出' },
+  { name: '数据导入（Excel）', desc: '下载模板 + 批量导入用户/单位' },
   { name: '批量删除', desc: '批量删除单位、用户、测评任务' },
-  { name: '数据导入', desc: '下载模板 + 批量导入用户/单位' },
+  { name: '强制删除用户', desc: '有测评记录时强制级联删除' },
+  { name: '批量新增单位', desc: '一次创建多个单位' },
   { name: '用户管理（无限制）', desc: '解除社区版 50 人上限' },
-  { name: '品牌定制', desc: '替换系统 Logo / 名称' },
+  { name: '操作日志查看', desc: '管理员操作全轨迹记录与查询' },
+  { name: 'IP过滤/安全防护', desc: '国外IP拦截、登录频率限制' },
+  { name: '审计子系统', desc: '独立审计入口，数据查看/导出/打印' },
 ]
 
 function open() {
